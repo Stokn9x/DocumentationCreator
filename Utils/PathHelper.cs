@@ -8,19 +8,14 @@ namespace DocumentationCreator.Utils
 {
     public static class PathHelper
     {
-        public static string GetCategory(string filePath)
+        public static string GetCategory(string filePath, string rootPath)
         {
-            var parts = filePath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
-            var knownFolders = new[] { "Services", "Controllers", "Models", "Utils", "Helpers" };
+            var relativePath = Path.GetRelativePath(rootPath, filePath);
+            var dirPath = Path.GetDirectoryName(relativePath);
 
-            foreach (var part in parts)
-            {
-                if (knownFolders.Contains(part, StringComparer.OrdinalIgnoreCase))
-                    return part;
-            }
-
-            return "Misc";
+            return dirPath?.Replace(Path.DirectorySeparatorChar, '/') ?? "Misc";
         }
     }
+
 }
 

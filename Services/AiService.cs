@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotNetEnv;
+using System.Text.RegularExpressions;
 
 namespace DocumentationCreator.Services
 {
@@ -40,12 +41,15 @@ namespace DocumentationCreator.Services
             var prompt = $$"""
                 Du er en professionel softwarearkitekt. Du får her et uddrag af C#-kode i kategorien "{{category}}".
 
-                Din opgave er at:
-                - Forklare hvad filen overordnet gør (formål).
-                - Fremhæv vigtige begreber, mønstre eller anvendte teknologier.
-                - Undlad at skrive kodeeksempler eller prøve at gætte på klasser/metoder du ikke ser direkte.
-                - Undlad at genopfinde implementeringer — brug kun den kode du ser.
-                - Returnér ren Markdown uden introduktion eller afslutning.
+                Din opgave er at skrive **klar og professionel dokumentation** i Markdown. Fokusér på formål og nøgleelementer – **ikke overflødige detaljer eller kode du ikke ser**.
+
+                Retningslinjer:
+                - Start med en kort opsummering af filens formål.
+                - Forklar centrale begreber, mønstre eller teknologier.
+                - Brug punktopstillinger **kun når det giver mening** – ellers brug almindelig tekst.
+                - Undlad at vise kodeeksempler, eller forsøge at gætte på manglende elementer.
+                - Undgå gentagelser og hold strukturen let at scanne visuelt.
+                - Returnér **kun Markdown-indhold** – ingen chat eller forklaringer.
 
                 Her er koden:
                 {{codeChunk}}
@@ -58,7 +62,13 @@ namespace DocumentationCreator.Services
             };
 
             var response = await _chatClient.CompleteChatAsync(messages);
-            return response.Value.Content.Last().Text.Trim();
+
+            var raw = response.Value.Content.Last().Text.Trim();
+            var cleaned = Regex.Replace(raw, @"```markdown\s*", "");
+            cleaned = Regex.Replace(cleaned, @"\s*```", "");
+
+            return cleaned;
+
         }
     }
 }

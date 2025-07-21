@@ -22,23 +22,16 @@ namespace DocumentationCreator.Services
 
             foreach (var file in codeFiles)
             {
-                Console.WriteLine($"Dokumenterer: {file.Path}");
+                Console.WriteLine($"📄 Dokumenterer: {file.Path}");
 
-                var chunks = Chunker.SplitCode(file.Content);
-                var docSections = new List<string>();
+                var markdown = await _aiService.AnalyzeCodeChunkAsync(file.Content, file.Category);
 
-                foreach (var chunk in chunks)
-                {
-                    var markdown = await _aiService.AnalyzeCodeChunkAsync(chunk, file.Category);
-                    docSections.Add(markdown);
-                }
+                var finalMarkdown = _markdownBuilder.Build(file, new List<string> { markdown });
 
-                var finalMarkdown = _markdownBuilder.Build(file, docSections);
                 var categoryFolder = Path.Combine(outputFolder, file.Category);
-
                 Directory.CreateDirectory(categoryFolder);
-                var outputPath = Path.Combine(categoryFolder, $"{Path.GetFileNameWithoutExtension(file.Path)}.md");
 
+                var outputPath = Path.Combine(categoryFolder, $"{Path.GetFileNameWithoutExtension(file.Path)}.md");
                 await File.WriteAllTextAsync(outputPath, finalMarkdown);
             }
         }

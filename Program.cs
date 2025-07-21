@@ -19,6 +19,8 @@ class Program
 
         var docService = new DocumentationService(fileService, aiService, markdownBuilder);
         await docService.GenerateDocumentationAsync(rootPath, outputPath);
+        await ProjectOverviewBuilder.GenerateAsync(outputPath, aiService);
+
         IndexBuilder.GenerateIndexFile(outputPath);
 
         Console.WriteLine("✅ Dokumentation genereret.");
