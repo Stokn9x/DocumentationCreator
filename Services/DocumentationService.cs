@@ -41,7 +41,7 @@ namespace DocumentationCreator.Services
                 }
                 else
                 {
-                    bool isRootCategory = string.IsNullOrWhiteSpace(group.Key) || !group.Key.Contains('/');
+                    bool isRootCategory = string.IsNullOrWhiteSpace(group.Key) || group.Key.Split('/').Length == 1;
 
                     foreach (var file in group)
                     {
@@ -57,10 +57,11 @@ namespace DocumentationCreator.Services
                         await File.WriteAllTextAsync(outputPath, finalMarkdown);
                     }
 
-                    if (!isRootCategory)
+                    if (!isRootCategory && !ShouldGroup(group.Key))
                     {
                         var classNames = group.Select(f => Path.GetFileNameWithoutExtension(f.Path)).ToList();
                         var category = group.Key;
+
                         var overviewPrompt = $$"""
                             Du er en teknisk dokumentationsskribent. Her er en oversigt over klasser i kategorien "{{category}}".
 
@@ -90,7 +91,7 @@ namespace DocumentationCreator.Services
         private bool ShouldGroup(string category)
         {
             var topLevel = category.Split('/').FirstOrDefault()?.ToLowerInvariant();
-            return topLevel is "models" or "dto" or "DTO" or "enums";
+            return topLevel is "models" or "dto" or "enums";
         }
     }
 }
