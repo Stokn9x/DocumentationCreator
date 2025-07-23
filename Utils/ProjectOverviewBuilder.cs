@@ -12,7 +12,6 @@ namespace DocumentationCreator.Utils
     {
         public static async Task GenerateAsync(string docsRoot, AiService aiService)
         {
-            // Find alle markdown-filer undtagen index og README
             var mdFiles = Directory.GetFiles(docsRoot, "*.md", SearchOption.AllDirectories)
                                    .Where(f =>
                                        !f.EndsWith("index.md", StringComparison.OrdinalIgnoreCase) &&
@@ -20,7 +19,6 @@ namespace DocumentationCreator.Utils
                                    .OrderBy(f => f)
                                    .ToList();
 
-            // Find kun kategori-oversigter (f.eks. Services.md, Utils.md, osv.)
             var categoryOverviews = mdFiles.Where(f =>
             {
                 var fileName = Path.GetFileName(f);
@@ -36,6 +34,7 @@ namespace DocumentationCreator.Utils
                 summaryLines.Add($"- [{name}]({relativePath})");
             }
 
+            summaryLines.Insert(0, "- [🏗️ Systemarkitektur](Architecture.md)");
             var fileList = string.Join("\n", summaryLines);
 
             var prompt = $$"""

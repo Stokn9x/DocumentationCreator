@@ -41,7 +41,7 @@ namespace DocumentationCreator.Services
                 }
                 else
                 {
-                    bool isRootCategory = string.IsNullOrWhiteSpace(group.Key) || group.Key.Split('/').Length == 1;
+                    bool isRootCategory = string.IsNullOrWhiteSpace(group.Key);
 
                     foreach (var file in group)
                     {
@@ -62,6 +62,9 @@ namespace DocumentationCreator.Services
                         var classNames = group.Select(f => Path.GetFileNameWithoutExtension(f.Path)).ToList();
                         var category = group.Key;
 
+                        // ➕ Mermaid klasse-diagram
+                        var diagram = MermaidDiagramBuilder.GenerateClassDiagram(group);
+
                         var overviewPrompt = $$"""
                             Du er en teknisk dokumentationsskribent. Her er en oversigt over klasser i kategorien "{{category}}".
 
@@ -75,6 +78,7 @@ namespace DocumentationCreator.Services
                             """;
 
                         var overviewMarkdown = await _aiService.AnalyzeCodeChunkAsync(overviewPrompt, category);
+                        var fullOverview = diagram + "\n\n" + overviewMarkdown;
 
                         var overviewFolder = Path.Combine(outputFolder, category);
                         Directory.CreateDirectory(overviewFolder);
@@ -82,7 +86,7 @@ namespace DocumentationCreator.Services
                         var categoryName = category.Split('/').Last();
                         var overviewPath = Path.Combine(overviewFolder, $"{categoryName}.md");
 
-                        await File.WriteAllTextAsync(overviewPath, overviewMarkdown);
+                        await File.WriteAllTextAsync(overviewPath, fullOverview);
                     }
                 }
             }
