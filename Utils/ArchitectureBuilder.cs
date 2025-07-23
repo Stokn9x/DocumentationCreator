@@ -19,7 +19,6 @@ public static class ArchitectureDiagramBuilder
 
         Dette diagram viser et overblik over systemets arkitektur, med fokus på controllere, services, repositories, middleware og værktøjer.
 
-        ```mermaid
         {{diagram}}
 
         """;

@@ -10,6 +10,7 @@ namespace DocumentationCreator.Utils
         {
             var sb = new StringBuilder();
 
+            sb.AppendLine("```mermaid");
             sb.AppendLine("classDiagram");
             sb.AppendLine("direction TB");
 
@@ -23,10 +24,20 @@ namespace DocumentationCreator.Utils
                 classNames[file] = className;
 
                 sb.AppendLine($"class {className} {{");
-                foreach (var method in GetPublicMethods(file.Content))
+
+                var methods = GetPublicMethods(file.Content);
+                if (methods.Any())
                 {
-                    sb.AppendLine($"  +{method}()");
+                    foreach (var method in methods)
+                    {
+                        sb.AppendLine($"  +{method}()");
+                    }
                 }
+                else
+                {
+                    sb.AppendLine("  +<tom>()");
+                }
+
                 sb.AppendLine("}");
             }
 
@@ -47,6 +58,7 @@ namespace DocumentationCreator.Utils
                 }
             }
 
+            sb.AppendLine("```");
             return sb.ToString();
         }
 
