@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using DocumentationCreator.Models;
 
-namespace DocumentationCreator.Utils
+namespace DocumentationCreator.Builders
 {
     public static class MermaidDiagramBuilder
     {
@@ -91,5 +91,58 @@ namespace DocumentationCreator.Utils
 
             return dependencies.Distinct().ToList();
         }
+
+        public static string GenerateErDiagramFromDbContext(string dbContextContent, Dictionary<string, string> entityContents)
+        {
+            var sb = new StringBuilder();
+
+            var entityMatches = Regex.Matches(dbContextContent, @"DbSet<(\w+)>");
+            var entities = entityMatches.Select(m => m.Groups[1].Value).Distinct().ToList();
+
+            foreach (var entity in entities)
+            {
+                sb.AppendLine($"{entity} {{");
+
+                if (entityContents.TryGetValue(entity, out var content))
+                {
+                    var propertyMatches = Regex.Matches(content, @"public\s+(\w+(?:<.*?>)?)\s+(\w+)\s*{\s*get;\s*set;\s*}");
+
+                    foreach (Match match in propertyMatches)
+                    {
+                        var type = match.Groups[1].Value;
+                        var name = match.Groups[2].Value;
+
+                        if (Regex.IsMatch(type, @"^(ICollection|List|HashSet)<.*>$")) continue;
+
+                        sb.AppendLine($"    {type} {name}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("    int id");
+                }
+
+                sb.AppendLine("}");
+            }
+
+            foreach (var entity in entities)
+            {
+                if (!entityContents.TryGetValue(entity, out var content)) continue;
+
+                var relations = Regex.Matches(content, @"ICollection<(\w+)>");
+
+                foreach (Match relation in relations)
+                {
+                    var target = relation.Groups[1].Value;
+                    if (entities.Contains(target))
+                    {
+                        sb.AppendLine($"{entity} ||--o{{ {target} : has");
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
     }
 }

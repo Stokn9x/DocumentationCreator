@@ -6,11 +6,18 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DocumentationCreator.Utils
+namespace DocumentationCreator.Builders
 {
-    public static class ProjectOverviewBuilder
+    public class ProjectOverviewBuilder
     {
-        public static async Task GenerateAsync(string docsRoot, AiService aiService)
+        private readonly AiService _aiService;
+
+        public ProjectOverviewBuilder(AiService aiService)
+        {
+            _aiService = aiService;
+        }
+
+        public async Task GenerateAsync(string docsRoot)
         {
             var mdFiles = Directory.GetFiles(docsRoot, "*.md", SearchOption.AllDirectories)
                                    .Where(f =>
@@ -34,26 +41,27 @@ namespace DocumentationCreator.Utils
                 summaryLines.Add($"- [{name}]({relativePath})");
             }
 
+            summaryLines.Insert(0, "- [🗃️ ER-Diagram](ErDiagram.md)");
             summaryLines.Insert(0, "- [🏗️ Systemarkitektur](Architecture.md)");
             var fileList = string.Join("\n", summaryLines);
 
-            var prompt = $$"""
-                Du er en softwarearkitekt.
+            var prompt = $$"""  
+                   Du er en softwarearkitekt.  
 
-                Her er en liste over dokumentationssektioner for et C#-projekt:
+                   Her er en liste over dokumentationssektioner for et C#-projekt:  
 
-                {{fileList}}
+                   {{fileList}}  
 
-                Skriv en **oversigtsside i Markdown** der:
-                - Forklarer projektets formål
-                - Giver et hurtigt overblik over dets hovedområder
-                - Præsenterer de vigtigste komponenter og kategorier
-                - Linker til hver kategori med en punktopstilling
+                   Skriv en **oversigtsside i Markdown** der:  
+                   - Forklarer projektets formål, og hvad systemet gør
+                   - Giver et hurtigt overblik over dets hovedområder  
+                   - Præsenterer de vigtigste komponenter og kategorier  
+                   - Linker til hver kategori med en punktopstilling  
 
-                Returnér kun Markdown.
-                """;
+                   Returnér kun Markdown.  
+                   """;
 
-            var response = await aiService.AnalyzeCodeChunkAsync(prompt, "Projektoversigt");
+            var response = await _aiService.AnalyzeCodeChunkAsync(prompt, "Projektoversigt");
 
             var content = "# 🧠 Projektoversigt\n\n" + response;
 

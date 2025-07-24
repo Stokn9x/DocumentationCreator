@@ -26,9 +26,6 @@ namespace DocumentationCreator.Services
             var key = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
             _deploymentName = "gpt-4o";
 
-            Console.WriteLine($"Using Azure OpenAI endpoint: {endpoint}");
-            Console.WriteLine($"Using deployment name: {_deploymentName}");
-
             if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(key))
                 throw new InvalidOperationException("Missing Azure OpenAI credentials");
 

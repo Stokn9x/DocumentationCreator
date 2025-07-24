@@ -1,10 +1,10 @@
 ﻿using DocumentationCreator.Models;
 
-namespace DocumentationCreator.Utils;
+namespace DocumentationCreator.Builders;
 
-public static class ArchitectureDiagramBuilder
+public class ArchitectureDiagramBuilder
 {
-    public static void Generate(string docsRoot, List<CodeFile> codeFiles)
+    public async Task Generate(string docsRoot, List<CodeFile> codeFiles)
     {
         var excludedRoots = new[] { "models", "dto", "enums" };
 

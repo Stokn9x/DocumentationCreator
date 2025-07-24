@@ -1,9 +1,9 @@
 ﻿namespace DocumentationCreator.Utils
 {
-    public static class IndexBuilder
+    public class IndexBuilder
     {
 
-        public static void GenerateIndexFile(string docsRoot)
+        public async Task GenerateIndexFile(string docsRoot)
         {
             var indexLines = new List<string>
                 {

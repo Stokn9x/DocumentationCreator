@@ -1,5 +1,6 @@
-﻿using DocumentationCreator.Models;
-using DocumentationCreator.Utils;
+﻿using DocumentationCreator.Builders;
+using DocumentationCreator.Menu;
+using DocumentationCreator.Models;
 
 namespace DocumentationCreator.Services
 {
@@ -16,9 +17,16 @@ namespace DocumentationCreator.Services
             _markdownBuilder = markdownBuilder;
         }
 
-        public async Task GenerateDocumentationAsync(string rootPath, string outputFolder)
+        public async Task GenerateDocumentationAsync(string rootPath, string outputFolder, List<CodeFile> codeFiles)
         {
-            var codeFiles = _fileService.LoadCodeFiles(rootPath);
+            Beautifier.CoolMenuHeader();
+            Console.WriteLine();
+            Console.WriteLine();
+            Beautifier.CoolCenterLine("Green");
+            Console.WriteLine();
+            Console.WriteLine();
+
+
             var grouped = codeFiles.GroupBy(f => f.Category);
 
             foreach (var group in grouped)

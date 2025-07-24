@@ -5,17 +5,22 @@ namespace DocumentationCreator.Services
 {
     public class FileService
     {
-        public List<CodeFile> LoadCodeFiles(string rootPath)
+        public List<CodeFile> LoadCodeFiles(string rootPath, List<string> exclusions)
         {
-            var excludedDirs = new[] { "bin", "obj", "Migrations" };
+            var defaultExcludedDirs = new[] { "bin", "obj", "Migrations" };
+
+            var allExcludedDirs = defaultExcludedDirs
+                .Concat(exclusions ?? Enumerable.Empty<string>())
+                .Select(d => d.ToLowerInvariant())
+                .ToHashSet();
 
             var files = Directory.GetFiles(rootPath, "*.cs", SearchOption.AllDirectories)
                                  .Where(f =>
                                  {
                                      var directoryPath = Path.GetDirectoryName(f) ?? string.Empty;
-                                     return !excludedDirs.Any(excluded =>
-                                         directoryPath.Split(Path.DirectorySeparatorChar)
-                                                      .Any(part => part.Equals(excluded, StringComparison.OrdinalIgnoreCase)));
+                                     var pathParts = directoryPath.Split(Path.DirectorySeparatorChar)
+                                                                  .Select(p => p.ToLowerInvariant());
+                                     return !pathParts.Any(part => allExcludedDirs.Contains(part));
                                  })
                                  .ToList();
 
@@ -26,5 +31,6 @@ namespace DocumentationCreator.Services
                 Category = PathHelper.GetCategory(f, rootPath)
             }).ToList();
         }
+
     }
 }
