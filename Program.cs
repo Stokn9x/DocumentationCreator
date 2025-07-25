@@ -17,7 +17,7 @@ class Program
 
         Env.Load(@"C:\Users\CasperErmegaardJense\source\repos\DocumentationCreator\.env");
 
-        var rootPath = args.Length > 0 ? args[0] : @"C:\Users\CasperErmegaardJense\source\repos\FLS-Archive\RunTest\";
+        var rootPath = args.Length > 0 ? args[0] : @"C:\Users\CasperErmegaardJense\source\repos\FLS-Archive\Archiver\";
         var outputPath = args.Length > 1 ? args[1] : @"C:\Test";
 
         bool state = true;
